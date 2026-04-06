@@ -8,7 +8,7 @@ from datetime import datetime
 NOM_IA = "Léa"
 REPO_OWNER = "HRichard58"  # <--- TON PSEUDO GITHUB ICI
 REPO_NAME = "lea-ia"
-FILE_PATH = "memoire.txt"
+FILE_PATH = "souvenirs_lea.txt"
 
 # Récupération des clés
 try:
