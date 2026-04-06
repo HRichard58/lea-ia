@@ -9,7 +9,7 @@ import time
 NOM_IA = "Léa"
 REPO_OWNER = "HRichard58" # <--- À changer
 REPO_NAME = "lea-ia"
-FILE_PATH = "souvenirs-lea" # Ton fichier de mémoire
+FILE_PATH = "souvenirs_lea" # Ton fichier de mémoire
 
 # Connexion API
 try:
