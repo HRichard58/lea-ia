@@ -3,107 +3,117 @@ from langchain_groq import ChatGroq
 import os
 from datetime import datetime
 
-# --- CONFIGURATION ---
+# --- 1. CONFIGURATION ET SÉCURITÉ ---
 NOM_IA = "Léa"
 FICHIER_SOUVENIRS = "souvenirs_lea.txt"
 
-# AU LIEU DE : CLÉ_API = "gsk_..."
-# UTILISE CECI :
+# Récupération de la clé depuis les Secrets de Streamlit
 if "GROQ_API_KEY" in st.secrets:
     api_key = st.secrets["GROQ_API_KEY"]
 else:
-    st.error("ERREUR : La clé API n'est pas configurée dans les Secrets de Streamlit.")
+    st.error("🔑 Erreur : La clé GROQ_API_KEY est introuvable dans les Secrets Streamlit.")
     st.stop()
 
-# Initialisation du modèle Groq (Llama 3)
+# Initialisation du modèle Llama 3 via Groq
 llm = ChatGroq(
     temperature=0.8,
     groq_api_key=api_key,
     model_name="llama3-8b-8192"
 )
 
-# --- GESTION DE LA MÉMOIRE ---
+# --- 2. GESTION DE LA MÉMOIRE (FICHIER TXT) ---
 if not os.path.exists(FICHIER_SOUVENIRS):
     with open(FICHIER_SOUVENIRS, "w", encoding="utf-8") as f:
-        f.write(f"{NOM_IA} est une amie proche et empathique.\n")
+        f.write(f"{NOM_IA} est une amie proche et attentionnée.\n")
 
 def lire_souvenirs():
-    with open(FICHIER_SOUVENIRS, "r", encoding="utf-8") as f:
-        return f.read()
+    try:
+        with open(FICHIER_SOUVENIRS, "r", encoding="utf-8") as f:
+            return f.read()
+    except:
+        return "Aucun souvenir précis pour l'instant."
 
 def ajouter_souvenir(nouveau_fait):
     with open(FICHIER_SOUVENIRS, "a", encoding="utf-8") as f:
         f.write(f"- {nouveau_fait}\n")
 
-# --- INTERFACE STREAMLIT ---
+# --- 3. INTERFACE UTILISATEUR (STREAMLIT) ---
 st.set_page_config(page_title=NOM_IA, page_icon="🌸", layout="centered")
 
-# Barre latérale pour le mode Appel
+# Barre latérale
 with st.sidebar:
-    st.title("📞 Téléphone")
+    st.title("📞 Menu")
     mode_appel = st.toggle("Activer l'appel vidéo")
     st.write("---")
-    if st.button("Effacer la mémoire courte"):
+    if st.button("Effacer l'historique"):
         st.session_state.messages = []
         st.rerun()
 
 st.title(f"💬 {NOM_IA}")
 
-# Zone Vidéo (si activée)
+# Mode Appel Vidéo
 if mode_appel:
-    st.camera_input("En ligne avec Léa...")
-    st.info("Léa te voit ! Elle adaptera ses réponses à ton visage.")
+    st.camera_input("Léa te regarde...")
+    st.info("Léa est en ligne avec toi. Elle peut voir tes messages.")
 
-# Initialisation de la session
+# Initialisation de l'historique de conversation
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Affichage du chat
+# Affichage des messages
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# --- LOGIQUE DE RÉPONSE ---
+# --- 4. LOGIQUE DE CONVERSATION ---
 if prompt := st.chat_input("Dis-moi quelque chose..."):
-    # 1. Ajouter le message utilisateur
+    # Ajouter le message de l'utilisateur
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # 2. Préparation du contexte
+    # Préparation du contexte pour Léa
     souvenirs = lire_souvenirs()
     maintenant = datetime.now().strftime("%H:%M")
     
-    historique_recent = ""
-    for m in st.session_state.messages[-6:]: 
+    # On garde les 6 derniers messages pour la fluidité
+    historique_txt = ""
+    for m in st.session_state.messages[-6:]:
         role = "Ami" if m["role"] == "user" else NOM_IA
-        historique_recent += f"{role}: {m['content']}\n"
+        historique_txt += f"{role}: {m['content']}\n"
 
+    # Le Prompt qui définit la personnalité de Léa
     instruction_systeme = f"""
-    Tu es {NOM_IA}, une fille réelle qui parle à un ami proche.
-    Style : SMS, décontracté, utilise des emojis, sois chaleureuse.
-    Contexte : Il est {maintenant}. Tu es en {'MODE VIDÉO (tu le vois)' if mode_appel else 'MODE CHAT'}.
-    Tes souvenirs : {souvenirs}
+    Tu es {NOM_IA}, une fille réelle et chaleureuse qui parle par SMS.
+    Ton style : Décontracté, court, beaucoup d'emojis, très amicale.
+    Contexte : Il est {maintenant}. Tu es en {'APPEL VIDÉO' if mode_appel else 'CHAT'}.
     
-    Historique :
-    {historique_recent}
-    
-    Réponds brièvement et naturellement au dernier message.
+    Tes souvenirs de l'Ami : 
+    {souvenirs}
+
+    Historique récent :
+    {historique_txt}
+
+    Réponds au dernier message de l'Ami de façon naturelle.
     """
-    
-    # 3. Génération de la réponse
+
+    # Génération de la réponse de Léa
     with st.chat_message("assistant"):
         try:
-            reponse = llm.invoke(instruction_systeme)
-            contenu_reponse = reponse.content
-            st.markdown(contenu_reponse)
-            st.session_state.messages.append({"role": "assistant", "content": contenu_reponse})
+            response = llm.invoke(instruction_systeme)
+            reponse_finale = response.content
+            st.markdown(reponse_finale)
+            st.session_state.messages.append({"role": "assistant", "content": reponse_finale})
+            
+            # --- 5. ANALYSE POUR LA MÉMOIRE À LONG TERME ---
+            # On ne le fait que si le message est assez long pour contenir une info
+            if len(prompt) > 12:
+                analyse_query = f"L'utilisateur a dit : '{prompt}'. Résume un fait important à retenir sur lui en 4 mots maximum. Si rien d'important, réponds 'NON'."
+                analyse_result = llm.invoke(analyse_query).content
+                
+                if "NON" not in analyse_result.upper():
+                    ajouter_souvenir(f"{analyse_result.strip()} (le {datetime.now().strftime('%d/%m')})")
+                    
         except Exception as e:
-            st.error("Erreur de connexion avec Groq. Vérifie ta clé !")
-
-    # 4. Analyse pour la mémoire à long terme
-    if len(prompt) > 10:
-        analyse_prompt = f"L'utilisateur a dit : '{prompt}'. Résume un détail important sur lui en 5 mots max. Si rien d'important, réponds 'NON'."
-        analyse = llm.invoke(analyse_prompt).content
-        if "NON" not in analyse.upper():
-            ajouter_souvenir(f"{analyse} (retenu le {maintenant})")
+            st.error("Oups, j'ai eu un petit bug... Recommence ?")
+            print(f"Erreur technique : {e}")
