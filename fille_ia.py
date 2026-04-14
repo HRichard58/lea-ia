@@ -6,10 +6,10 @@ from datetime import datetime
 import time
 
 # --- 1. CONFIGURATION ---
-NOM_IA = "Léa"
+NOM_IA = "x"
 REPO_OWNER = "HRichard58" # <--- À changer
-REPO_NAME = "lea-ia"
-FILE_PATH = "souvenirs_lea" # Ton fichier de mémoire
+REPO_NAME = "x-ia"
+FILE_PATH = "souvenirs_x" # Ton fichier de mémoire
 
 # Connexion API
 try:
@@ -28,7 +28,7 @@ def lire_memoire_github():
     if r.status_code == 200:
         content = base64.b64decode(r.json()['content']).decode('utf-8')
         return content, r.json()['sha']
-    return "Léa est une amie proche.", None
+    return "x est ...", None
 
 def sauver_memoire_github(nouveau_souvenir):
     contenu_actuel, sha = lire_memoire_github()
@@ -43,7 +43,7 @@ def sauver_memoire_github(nouveau_souvenir):
     requests.put(url, json=data, headers={"Authorization": f"token {gh_token}"})
 
 # --- 3. INTERFACE ---
-st.set_page_config(page_title=NOM_IA, page_icon="🌸")
+st.set_page_config(page_title=NOM_IA)
 
 # Style CSS pour centrer le visage
 st.markdown("""
@@ -67,7 +67,7 @@ if mode_appel:
     url_visage = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/main/lea_visage.gif"
     st.image(url_visage, width=200)
     st.markdown('</div>', unsafe_allow_html=True)
-    st.info("Léa t'écoute... (Utilise le micro de ton clavier)")
+    st.info("x t'écoute... (Utilise le micro de ton clavier)")
 
 # Initialisation
 if "messages" not in st.session_state: st.session_state.messages = []
@@ -79,7 +79,7 @@ for m in st.session_state.messages:
     with st.chat_message(m["role"]): st.markdown(m["content"])
 
 # --- 4. LOGIQUE CHAT ---
-if prompt := st.chat_input("Parle à Léa..."):
+if prompt := st.chat_input("Parle à x..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"): st.markdown(prompt)
 
@@ -88,8 +88,8 @@ if prompt := st.chat_input("Parle à Léa..."):
 
     with st.chat_message("assistant"):
         try:
-            # Simulation de "Léa réfléchit"
-            with st.spinner("Léa réfléchit..."):
+            # Simulation de "x réfléchit"
+            with st.spinner("x réfléchit..."):
                 response = llm.invoke(instruction).content
             
             # Affichage progressif (effet machine à écrire)
