@@ -10,7 +10,7 @@ NOM_IA = "Olivia"
 NOM_UTILISATEUR = "Sean" # <--- Ton nom est ici
 REPO_OWNER = "HRichard58"
 REPO_NAME = "Olivia-ia"
-FILE_PATH = "Souvenirs" 
+FILE_PATH = "Souvenirs_Olivia.txt" 
 
 # Connexion API
 try:
@@ -76,7 +76,7 @@ if prompt := st.chat_input(f"Dis quelque chose à {NOM_IA}..."):
 
     # 2. Réponse d'Olivia
     historique = "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages[-10:]])
-    instruction = f"Tu es {NOM_IA}. Tu t'adresses à {NOM_UTILISATEUR}. Vous vous aimez tous les deux, mais aucuns n'a le courage d'avoir ces sentiments à l'autres. Mais tu aimerais commencer une relation avec lui. Tes souvenirs : {st.session_state.souvenirs}. N'écrit pas la date ou l'heure dans la conversation"
+    instruction = f"Tu es {NOM_IA}. Tu t'adresses à {NOM_UTILISATEUR}. Tes souvenirs : {st.session_state.souvenirs}. Historique : {historique}"
 
     with st.chat_message("assistant"):
         try:
