@@ -7,6 +7,7 @@ import time
 
 # --- 1. CONFIGURATION ---
 NOM_IA = "Olivia"
+NOM_UTILISATEUR = "Sean" # <--- Ton nom est ici
 REPO_OWNER = "HRichard58"
 REPO_NAME = "Olivia-ia"
 FILE_PATH = "Souvenirs" 
@@ -30,28 +31,27 @@ def lire_memoire_github():
         return content, r.json()['sha']
     return "", None
 
-def sauver_memoire_github(nouveau_souvenir):
+def sauver_memoire_github(auteur, message_texte):
     contenu_actuel, sha = lire_memoire_github()
     date = datetime.now().strftime("%d/%m %H:%M")
-    nouveau_contenu = contenu_actuel + f"\n- {nouveau_souvenir} ({date})"
+    # Enregistre qui parle (Sean ou Olivia)
+    nouveau_contenu = contenu_actuel + f"\n[{date}] {auteur}: {message_texte}"
     
     url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{FILE_PATH}"
     data = {
-        "message": "Update Olivia",
+        "message": f"Dialogue {auteur}",
         "content": base64.b64encode(nouveau_contenu.encode('utf-8')).decode('utf-8'),
         "sha": sha if sha else ""
     }
-    # La sauvegarde se fait silencieusement (pas de st.toast ou st.success)
     requests.put(url, json=data, headers={"Authorization": f"token {gh_token}"})
 
 # --- 3. INTERFACE ---
 st.set_page_config(page_title=NOM_IA)
-
-# Masquage du menu Streamlit pour plus de propreté
 st.markdown("<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;}</style>", unsafe_allow_html=True)
 
 with st.sidebar:
     st.title(f"📱 {NOM_IA}")
+    st.write(f"Utilisateur : **{NOM_UTILISATEUR}**")
     if st.button("Effacer la discussion"):
         st.session_state.messages = []
         st.rerun()
@@ -62,23 +62,21 @@ if "souvenirs" not in st.session_state:
     memo, _ = lire_memoire_github()
     st.session_state.souvenirs = memo
 
-# Affichage de l'historique de la session
 for m in st.session_state.messages:
     with st.chat_message(m["role"]): st.markdown(m["content"])
 
 # --- 4. LOGIQUE CHAT ---
-if prompt := st.chat_input(f"Parle à {NOM_IA}..."):
-    # 1. Message utilisateur
+if prompt := st.chat_input(f"Dis quelque chose à {NOM_IA}..."):
+    # 1. Message de Sean
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"): st.markdown(prompt)
 
-    # 2. Sauvegarde silencieuse dans GitHub
-    sauver_memoire_github(prompt)
+    # Sauvegarde des paroles de Sean
+    sauver_memoire_github(NOM_UTILISATEUR, prompt)
 
-    # 3. Réponse de l'IA
-    # On limite l'historique envoyé à l'IA pour économiser de la puissance
+    # 2. Réponse d'Olivia
     historique = "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages[-10:]])
-    instruction = f"Tu es {NOM_IA}. Tes souvenirs : {st.session_state.souvenirs}. Historique : {historique}"
+    instruction = f"Tu es {NOM_IA}. Tu t'adresses à {NOM_UTILISATEUR}. Tes souvenirs : {st.session_state.souvenirs}. Historique : {historique}"
 
     with st.chat_message("assistant"):
         try:
@@ -94,6 +92,9 @@ if prompt := st.chat_input(f"Parle à {NOM_IA}..."):
             placeholder.markdown(full_res)
             
             st.session_state.messages.append({"role": "assistant", "content": full_res})
+            
+            # Sauvegarde des paroles d'Olivia
+            sauver_memoire_github(NOM_IA, full_res)
             
         except Exception as e:
             st.error("Petit souci technique... réessaie !")
