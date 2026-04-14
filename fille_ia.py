@@ -38,7 +38,6 @@ def sauver_memoire_github(nouveau_souvenir):
     
     url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{FILE_PATH}"
     data = {
-        "message": "Nouvel échange enregistré",
         "content": base64.b64encode(nouveau_contenu.encode('utf-8')).decode('utf-8'),
         "sha": sha if sha else ""
     }
@@ -54,8 +53,6 @@ with st.sidebar:
     if st.button("Reset Chat"):
         st.session_state.messages = []
         st.rerun()
-    st.write("---")
-    st.write(f"Fichier : `{FILE_PATH}`")
 
 # Initialisation
 if "messages" not in st.session_state: st.session_state.messages = []
