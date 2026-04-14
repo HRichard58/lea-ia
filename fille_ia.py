@@ -10,8 +10,7 @@ NOM_IA = "Olivia"
 NOM_UTILISATEUR = "Sean" # <--- Ton nom est ici
 REPO_OWNER = "HRichard58"
 REPO_NAME = "Olivia-ia"
-FILE_PATH = "Souvenirs_Olivia.txt" 
-
+FILE_PATH = "Souvenirs"
 # Connexion API
 try:
     groq_key = st.secrets["GROQ_API_KEY"]
@@ -75,7 +74,7 @@ if prompt := st.chat_input(f"Dis quelque chose à {NOM_IA}..."):
     sauver_memoire_github(NOM_UTILISATEUR, prompt)
 
     # 2. Réponse d'Olivia
-    historique = "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages[-10:]])
+    historique = "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages[-20:]])
     instruction = f"Tu es {NOM_IA}. Tu t'adresses à {NOM_UTILISATEUR}. Tes souvenirs : {st.session_state.souvenirs}. Historique : {historique}"
 
     with st.chat_message("assistant"):
