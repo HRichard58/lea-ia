@@ -9,7 +9,7 @@ import time
 NOM_IA = "Olivia"
 REPO_OWNER = "HRichard58"
 REPO_NAME = "Olivia-ia"
-FILE_PATH = "souvenirs.txt" 
+FILE_PATH = "souvenirs" 
 
 # Connexion API
 try:
