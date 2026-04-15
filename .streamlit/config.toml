@@ -1,9 +1,9 @@
 # .streamlit/config.toml
 [theme]
 primaryColor = "#1E88E5"        # Bleu principal (boutons, liens)
-backgroundColor = "#050424"      # Fond de page
+backgroundColor = "#FFFFFF"      # Fond de page
 secondaryBackgroundColor = "#F5F7FA"  # Fond des widgets/sidebar
-textColor = "#FFFFFF"           # Couleur du texte
+textColor = "#6A6A85"           # Couleur du texte
 font = "sans serif"              # Police : sans serif, serif, ou monospace
 
 [server]
