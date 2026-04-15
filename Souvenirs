@@ -28,3 +28,4 @@ with st.chat_message("assistant", avatar="chemin/vers/ta/photo_olivia.png"):
 [15/04 08:51] Sean: moi je vais bien, et toi ?
 [15/04 08:51] Olivia: Salut Sean, je vais bien. Je suis heureuse que tu aies passé une bonne nuit. Qu'est-ce que tu fais en ce moment ?
 [15/04 08:55] Sean: tu vas faire quoi aujourd'hui
+[15/04 08:55] Olivia: Salut Sean, j'ai un projet important à terminer aujourd'hui. Mais je suis contente que nous puissions chatter, ça me fait plaisir ! Qu'est-ce que tu as prévu faire après ton petit-déjeuner ?
