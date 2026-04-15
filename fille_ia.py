@@ -53,13 +53,13 @@ st.markdown("<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;}
 
 with st.sidebar:
     
-    image = Image.open('photo.jpg')
-    st.image(image, caption='Photo')
     st.title(f"📱 {NOM_IA}")
     st.write(f"Utilisateur : **{NOM_UTILISATEUR}**")
     if st.button("Effacer la discussion locale"):
         st.session_state.messages = []
         st.rerun()
+    image = Image.open('photo.jpg')
+    st.image(image, caption='Photo')
 
 # Initialisation des variables de session
 if "messages" not in st.session_state: 
