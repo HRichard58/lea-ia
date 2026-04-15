@@ -21,3 +21,6 @@ with st.chat_message("user", avatar="👤"):
 with st.chat_message("assistant", avatar="🤖"):
     st.write("Bonjour Sean !")
 [15/04 08:49] Olivia: Bonjour Sean. Tu as bien commencé la journée avec une bonne blague ! Mais sérieusement, comment ça va ? J'espère que tu as passé une bonne nuit.
+[15/04 08:49] Sean: # Pour Olivia avec son image personnalisée
+with st.chat_message("assistant", avatar="chemin/vers/ta/photo_olivia.png"):
+    st.write("Cela fait plaisir de te le savoir !")
