@@ -3,7 +3,7 @@
 primaryColor = "#1E88E5"        # Bleu principal (boutons, liens)
 backgroundColor = "#050424"      # Fond de page
 secondaryBackgroundColor = "#F5F7FA"  # Fond des widgets/sidebar
-textColor = "#1A1A2E"           # Couleur du texte
+textColor = "#FFFFFF"           # Couleur du texte
 font = "sans serif"              # Police : sans serif, serif, ou monospace
 
 [server]
