@@ -53,8 +53,8 @@ st.markdown("<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;}
 
 with st.sidebar:
     
-    image = Image.open('educativeImage.jpg')
-    st.image(image, caption='Educative')
+    image = Image.open('photo.jpg')
+    st.image(image, caption='Photo')
     st.title(f"📱 {NOM_IA}")
     st.write(f"Utilisateur : **{NOM_UTILISATEUR}**")
     if st.button("Effacer la discussion locale"):
