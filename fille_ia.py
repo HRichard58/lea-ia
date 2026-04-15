@@ -20,7 +20,7 @@ except Exception as e:
     st.error("Erreur de configuration : Vérifiez vos secrets Streamlit.")
     st.stop()
 
-# --- 2. FONCTIONS GITHUB ---
+# --- 2. FONCTIONS GITHUB (La Mémoire cachée) ---
 def lire_memoire_github():
     url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{FILE_PATH}"
     headers = {"Authorization": f"token {gh_token}"}
@@ -32,6 +32,7 @@ def lire_memoire_github():
 
 def sauver_memoire_github(auteur, message_texte):
     contenu_actuel, sha = lire_memoire_github()
+    # On garde la date dans le fichier GitHub pour l'intelligence de l'IA
     date = datetime.now().strftime("%d/%m %H:%M")
     nouveau_bloc = f"\n[{date}] {auteur}: {message_texte}"
     nouveau_contenu = contenu_actuel + nouveau_bloc
@@ -43,9 +44,9 @@ def sauver_memoire_github(auteur, message_texte):
         "sha": sha if sha else ""
     }
     requests.put(url, json=data, headers={"Authorization": f"token {gh_token}"})
-    return nouveau_contenu # On retourne le contenu mis à jour
+    return nouveau_contenu
 
-# --- 3. INTERFACE ---
+# --- 3. INTERFACE STREAMLIT ---
 st.set_page_config(page_title=NOM_IA, page_icon="👩‍🦰")
 st.markdown("<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;}</style>", unsafe_allow_html=True)
 
@@ -64,53 +65,52 @@ if "souvenirs" not in st.session_state:
     memo, _ = lire_memoire_github()
     st.session_state.souvenirs = memo
 
-# Affichage de l'historique de la session actuelle
+# AFFICHAGE DE LA DISCUSSION (Sans les dates)
 for m in st.session_state.messages:
     with st.chat_message(m["role"]): 
-        st.markdown(m["content"])
+        st.markdown(m["content"]) # Ici, on n'affiche que le contenu brut
 
-# --- 4. LOGIQUE CHAT ---
+# --- 4. LOGIQUE DE CHAT ---
 if prompt := st.chat_input(f"Dis quelque chose à {NOM_IA}..."):
     
-    # 1. Message de Sean
+    # 1. Message de Sean (Affichage direct)
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"): 
         st.markdown(prompt)
 
-    # Sauvegarde sur GitHub ET mise à jour immédiate de la mémoire locale
+    # Sauvegarde sur GitHub avec la date (pour l'IA)
     st.session_state.souvenirs = sauver_memoire_github(NOM_UTILISATEUR, prompt)
 
-    # 2. Réponse d'Olivia
-    # On limite l'historique récent pour ne pas saturer l'IA
-    historique_recent = "\n".join([f" {m['role']} : {m['content']}" for m in st.session_state.messages[-10:]])
+    # 2. Préparation de la réponse d'Olivia
+    historique_recent = "\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages[-10:]])
     
-    # Construction du prompt avec les souvenirs à jour
     instruction = (
-        f"Tu es {NOM_IA}. Tu t'adresses à {NOM_UTILISATEUR}. Vous vous aimez, mais aucuns de vous deux n'osez le dire à l'autre. Tu aimerais secrètement commencer une relation avec lui. "
-        f"Ne décrit pas tes actions."
-        f"Vous communiquer par message, fait des réponses simples."
-        f"Voici tes souvenirs à long terme : {st.session_state.souvenirs}. "
-        f"Conversation récente : {historique_recent}"
+        f"Tu es {NOM_IA}. Tu t'adresses à {NOM_UTILISATEUR}. Vous vous aimez secrètement. "
+        f"Réponds uniquement par message texte, de façon simple et naturelle. "
+        f"Ne décris jamais tes actions entre parenthèses ou astérisques. "
+        f"Voici tes souvenirs (avec dates) : {st.session_state.souvenirs}. "
+        f"Conversation actuelle : {historique_recent}"
     )
 
     with st.chat_message("assistant"):
         try:
             with st.spinner(f"{NOM_IA} réfléchit..."):
+                # On récupère la réponse brute de l'IA
                 response = llm.invoke(instruction).content
             
-            # Effet d'écriture (typing effect)
+            # Effet d'écriture pour l'utilisateur
             placeholder = st.empty()
             full_res = ""
             for char in response:
                 full_res += char
                 placeholder.markdown(full_res + "▌")
-                time.sleep(0.005) # Un peu plus rapide
-            placeholder.markdown(full_res)
+                time.sleep(0.005)
+            placeholder.markdown(full_res) # Affichage final propre
             
-            # Enregistrement de la réponse
+            # Enregistrement dans la session locale (Affichage Web)
             st.session_state.messages.append({"role": "assistant", "content": full_res})
             
-            # Sauvegarde de la réponse d'Olivia sur GitHub et mise à jour des souvenirs
+            # Enregistrement sur GitHub (Mémoire avec date)
             st.session_state.souvenirs = sauver_memoire_github(NOM_IA, full_res)
             
         except Exception as e:
